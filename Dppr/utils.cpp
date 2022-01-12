@@ -13,3 +13,24 @@ void createNote(const char* filen, const char* filem, BOOL showf) {
 	if (showf) ShellExecuteA(NULL, NULL, "notepad", ".\\note.txt", NULL, SW_SHOWDEFAULT);
 }
 
+void delay(unsigned int millisecs)
+{
+	// Storing start time
+	clock_t start_time = clock();
+
+	// looping till required time is not achieved
+	while (clock() < start_time + millisecs) { }
+}
+
+void freezeCursor(clock_t duration) {
+
+	POINT pos;
+	GetCursorPos(&pos);
+
+	clock_t start = clock();
+	while ((clock() - start) / CLOCKS_PER_SEC < duration) {
+		SetCursorPos(pos.x, pos.y);
+		delay(10);
+	}
+		
+}
