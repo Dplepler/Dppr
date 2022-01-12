@@ -10,7 +10,8 @@ int main(int argc, char** argv) {
 
 	if (strcmp(argv[1], "ok")) return 1;
 
-	createNote(".\\note.txt", "HI HELLO THERE", TRUE);
+	//createNote(".\\note.txt", "HI HELLO THERE", TRUE);
+	while (popup("lol", "Still using this computer?\n") == IDYES) { }
 
 	return 0;
 }
