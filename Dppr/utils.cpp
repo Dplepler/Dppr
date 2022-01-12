@@ -12,3 +12,4 @@ void createNote(const char* filen, const char* filem, BOOL showf) {
 
 	if (showf) ShellExecuteA(NULL, NULL, "notepad", ".\\note.txt", NULL, SW_SHOWDEFAULT);
 }
+
