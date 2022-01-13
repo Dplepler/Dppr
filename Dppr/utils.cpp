@@ -35,21 +35,26 @@ void freezeCursor(clock_t duration) {
 
 DWORD WINAPI FlashLEDs(LPVOID p) {
 
-	bool switchl = TRUE;
 
 	while (true) {
 
-		INPUT inputs[1];
+		/* Press CAPS key */
+		INPUT inputs[2];
 		inputs[0].type = INPUT_KEYBOARD;
 		inputs[0].ki.wVk = VK_CAPITAL;
-		inputs[0].ki.dwFlags = switchl ? 0 : KEYEVENTF_KEYUP;
-
-		/*inputs[1].type = INPUT_KEYBOARD;
-		inputs[1].ki.wVk = VK_F8;
-		inputs[1].ki.dwFlags = switchl ? KEYEVENTF_EXTENDEDKEY : KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY;*/
+		inputs[0].ki.dwFlags = 0;
 
 		SendInput(1, inputs, sizeof(INPUT) * 1);
 
-		delay(10000);
+		/* Release CAPS key */
+		inputs[0].type = INPUT_KEYBOARD;
+		inputs[0].ki.wVk = VK_CAPITAL;
+		inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
+
+		SendInput(1, inputs, sizeof(INPUT) * 1);
+
+		delay(1000);	// Delay 1 second
 	}
+
+	return 0;
 }
