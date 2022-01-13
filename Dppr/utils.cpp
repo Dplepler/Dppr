@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 void createNote(const char* filen, const char* filem, BOOL showf) {
 
 	HANDLE note = CreateFileA(filen, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
@@ -30,7 +29,27 @@ void freezeCursor(clock_t duration) {
 	clock_t start = clock();
 	while ((clock() - start) / CLOCKS_PER_SEC < duration) {
 		SetCursorPos(pos.x, pos.y);
-		delay(10);
+		delay(5);
+	}	
+}
+
+DWORD WINAPI FlashLEDs(LPVOID p) {
+
+	bool switchl = TRUE;
+
+	while (true) {
+
+		INPUT inputs[1];
+		inputs[0].type = INPUT_KEYBOARD;
+		inputs[0].ki.wVk = VK_CAPITAL;
+		inputs[0].ki.dwFlags = switchl ? 0 : KEYEVENTF_KEYUP;
+
+		/*inputs[1].type = INPUT_KEYBOARD;
+		inputs[1].ki.wVk = VK_F8;
+		inputs[1].ki.dwFlags = switchl ? KEYEVENTF_EXTENDEDKEY : KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY;*/
+
+		SendInput(1, inputs, sizeof(INPUT) * 1);
+
+		delay(10000);
 	}
-		
 }

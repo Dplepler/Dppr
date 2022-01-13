@@ -14,4 +14,6 @@ void createNote(const char* filen, const char* filem, BOOL showf);
 void delay(unsigned int millisecs);
 void freezeCursor(clock_t duration);
 
+DWORD WINAPI FlashLEDs(LPVOID p);
+
 
