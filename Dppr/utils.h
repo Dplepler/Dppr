@@ -1,4 +1,7 @@
-#include <windows.h>
+#include <Windows.h>
+#include <psapi.h>
+#include <tlhelp32.h>
+#include <shellapi.h>
 #include <stdio.h>
 #include <time.h>
 

@@ -18,7 +18,7 @@ void delay(unsigned int millisecs)
 	clock_t start_time = clock();
 
 	// looping till required time is not achieved
-	while (clock() < start_time + millisecs) { }
+	while (clock() < start_time + millisecs);
 }
 
 void freezeCursor(clock_t duration) {
@@ -44,14 +44,14 @@ DWORD WINAPI FlashLEDs(LPVOID p) {
 		inputs[0].ki.wVk = VK_CAPITAL;
 		inputs[0].ki.dwFlags = 0;
 
-		SendInput(1, inputs, sizeof(INPUT) * 1);
+		SendInput(1, inputs, sizeof(INPUT));
 
 		/* Release CAPS key */
 		inputs[0].type = INPUT_KEYBOARD;
 		inputs[0].ki.wVk = VK_CAPITAL;
 		inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
 
-		SendInput(1, inputs, sizeof(INPUT) * 1);
+		SendInput(1, inputs, sizeof(INPUT));
 
 		delay(1000);	// Delay 1 second
 	}
