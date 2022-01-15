@@ -9,7 +9,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	int argc;
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	
-
 	if (argc > 1 && !lstrcmpW(argv[1], ARG)) {
 
 		CreateThread(NULL, NULL, &monitorT, NULL, 0, NULL);
