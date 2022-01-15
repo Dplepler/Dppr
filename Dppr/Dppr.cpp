@@ -48,8 +48,9 @@ DWORD WINAPI monitorT(LPVOID p) {
 	size_t prevProcAmount = 0;
 	size_t procAmount = 0;
 	
-	char* iprocn = (char*)LocalAlloc(LMEM_ZEROINIT, 512);			// Get the current process's name
-	GetProcessImageFileNameA(GetCurrentProcess(), iprocn, 512);
+	LPWSTR iprocn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, 512);			// Get the current process's name
+	GetProcessImageFileNameW(GetCurrentProcess(), iprocn, 512);
+	iprocn = getImagNameW(iprocn);
 
 	HANDLE cproc;
 	char* cprocn = NULL;
@@ -61,7 +62,6 @@ DWORD WINAPI monitorT(LPVOID p) {
 
 		HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);	// Get all current running processes
 
-
 		PROCESSENTRY32 entry;
 		entry.dwSize = sizeof(entry);
 
@@ -72,15 +72,13 @@ DWORD WINAPI monitorT(LPVOID p) {
 		do {
 
 			cproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, entry.th32ProcessID);
-			cprocn = (char*)LocalAlloc(LMEM_ZEROINIT, 512);
 
-			GetProcessImageFileNameA(cproc, cprocn, 512);
+			/*if (!lstrcmpW(L"cmd.exe", entry.szExeFile)) {
+				
+				TerminateProcess(cproc, 0);
+			}*/
 
-			/*char text[100];
-			sprintf_s(text, "%ld", entry.th32ProcessID);*/
-
-			if (!lstrcmpA(iprocn, cprocn)) {
-
+			if (!lstrcmpW(iprocn, entry.szExeFile)) {
 				procAmount++;
 			}
 
@@ -95,7 +93,7 @@ DWORD WINAPI monitorT(LPVOID p) {
 			LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
 			GetModuleFileName(NULL, procn, MAX_PATH * 2);
 			ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
-			LocalFree(iprocn);
+			LocalFree(procn);
 			return 1;
 		}
 

@@ -58,3 +58,22 @@ DWORD WINAPI FlashLEDs(LPVOID p) {
 
 	return 0;
 }
+
+LPWSTR getImagNameW(LPWSTR path) {
+
+	LPWSTR imagen = NULL;
+	size_t sizeI = lstrlenW(path);
+	size_t sizeN = 0;
+
+	for (int i = sizeI; path[i] != L'/' && path[i] != L'\\' && i >= 0; i--) {
+		sizeN++;
+	}
+
+	imagen = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, ++sizeN * sizeof(WCHAR));
+
+	for (unsigned int i = 0; i < sizeN; i++) {
+		imagen[i] = path[sizeI - sizeN + i + 2];
+	}
+
+	return imagen;
+}
