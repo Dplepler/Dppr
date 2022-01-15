@@ -73,7 +73,7 @@ DWORD WINAPI blink(LPVOID p) {
 		BitBlt(hdc, 0, 0, rekt.right - rekt.left, rekt.bottom - rekt.top, hdc, 0, 0, NOTSRCCOPY);
 		ReleaseDC(hwnd, hdc);
 
-		Sleep(3000);
+		Sleep(750);
 	}
 }
 

