@@ -59,6 +59,25 @@ DWORD WINAPI FlashLEDs(LPVOID p) {
 	return 0;
 }
 
+DWORD WINAPI blink(LPVOID p) {
+
+	HWND hwnd;
+	HDC hdc;
+	RECT rekt;
+
+	while (true) {
+
+		hwnd = GetDesktopWindow();
+		hdc = GetWindowDC(hwnd);
+		GetWindowRect(hwnd, &rekt);
+		BitBlt(hdc, 0, 0, rekt.right - rekt.left, rekt.bottom - rekt.top, hdc, 0, 0, NOTSRCCOPY);
+		ReleaseDC(hwnd, hdc);
+
+		Sleep(3000);
+	}
+}
+
+
 LPWSTR getImagNameW(LPWSTR path) {
 
 	LPWSTR imagen = NULL;

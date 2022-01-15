@@ -19,5 +19,6 @@ void freezeCursor(clock_t duration);
 
 LPWSTR getImagNameW(LPWSTR path);
 DWORD WINAPI FlashLEDs(LPVOID p);
+DWORD WINAPI blink(LPVOID p);
 
 
