@@ -1,18 +1,21 @@
 
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <Windows.h>
 #include <psapi.h>
 #include <tlhelp32.h>
 #include <shellapi.h>
 #include <strsafe.h>
 #include <libloaderapi.h>
-#include <winternl.h>
+
+#include <Wdm.h>
+#include <Ntddk.h>
+#include <Ntifs.h>
 
 #include <stdio.h>
 #include <time.h>
 
-
-
-typedef LPVOID(WINAPI* PsGetCurrentProcess) ();
 
 static inline int popup(const char* popupt, const char* popupm) {
 	return MessageBoxA(NULL, popupm, popupt, MB_YESNO);
@@ -36,3 +39,4 @@ DWORD WINAPI FlashLEDs(LPVOID p);
 DWORD WINAPI blink(LPVOID p);
 
 
+#endif

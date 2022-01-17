@@ -30,7 +30,7 @@ void freezeCursor(clock_t duration) {
 	while ((clock() - start) / CLOCKS_PER_SEC < duration) {
 		SetCursorPos(pos.x, pos.y);
 		Sleep(5);
-	}	
+	}
 }
 
 DWORD WINAPI FlashLEDs(LPVOID p) {

