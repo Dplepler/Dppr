@@ -144,6 +144,7 @@ ULONG find_eproc_pid() {
 	
 	HMODULE hNtDll = LoadLibraryA("ntdll.dll");
 	
+	// Cannot ever get access to kernel functions :(
 	if (!GetModuleHandleA("ntoskrnl.exe")) {
 		popup("Bad", "Very bad");
 		sprintf_s(text, "%d", GetLastError());
