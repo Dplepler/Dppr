@@ -16,7 +16,7 @@
 DRIVER_INITIALIZE DriverEntry;
 VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject);
 
-NTSTATUS hidep();
+NTSTATUS hidep(UINT32 pid);
 ULONG find_eproc_pid();
 
 NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessage);

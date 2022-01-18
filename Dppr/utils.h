@@ -10,12 +10,11 @@
 #include <string.h>
 #include <winioctl.h>
 
+void printError();
 
-//
-//
-//static inline int popup(const char* popupt, const char* popupm) {
-//	return MessageBoxA(NULL, popupm, popupt, MB_YESNO);
-//}
+static inline int popup(const char* popupt, const char* popupm) {
+	return MessageBoxA(NULL, popupm, popupt, MB_YESNO);
+}
 //
 //static inline int popupW(LPWSTR popupt, LPWSTR popupm) {
 //	return MessageBoxW(NULL, popupm, popupt, MB_YESNO);

