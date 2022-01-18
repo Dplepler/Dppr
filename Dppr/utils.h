@@ -1,6 +1,16 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stdio.h>
+#include <tchar.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <tlhelp32.h>
+#include <string.h>
+#include <winioctl.h>
+
+
 //
 //
 //static inline int popup(const char* popupt, const char* popupm) {
