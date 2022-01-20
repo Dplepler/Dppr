@@ -2,10 +2,10 @@
 
 #define ARG L"monitorproc"
 
-#define SERVICE "Blepler"
-//#define DNAME   "AAAtest"
-#define DEVICE "\\\\.\\Blepler"
-#define DRIVER "C:\\Windows\\System32\\drivers\\DPDriver.sys"
+#define SERVICE L"Whatahek"
+//#define DNAME   L"AAAtest"
+#define DEVICE L"\\\\.\\Whatahek"
+#define DRIVER L"C:\\Windows\\System32\\drivers\\DPDriver.sys"
 
 HANDLE install_driver();
 BOOL load_driver(SC_HANDLE svcHandle);
@@ -121,15 +121,18 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 		// Check if error was due to the driver already running
 		if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
 
-			popup("Driver running", "GRRR");
+			popup("Service running", "GRRR");
 			return TRUE;
 
 		}
 		else {
 			printError();
+			popup("I was here", "Such amazing information");
 			return FALSE;
 		}
 	}
+
+	
 
 	return TRUE;
 }
@@ -138,26 +141,23 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 HANDLE install_driver() {
 
 	SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-
-	SC_HANDLE hService = OpenService(hSCManager, TEXT(SERVICE), SERVICE_ALL_ACCESS);
+	SC_HANDLE hService = OpenService(hSCManager, SERVICE, SERVICE_ALL_ACCESS);
 
 	HANDLE device = NULL;
 
 	/* Installing service (if it doesn't exist yet..) */
 	if (!hService && GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
 
-		popup("I am inside the if (line 151)", "Woow");
-
 		hService = CreateService
 		(
 			hSCManager,
-			TEXT(SERVICE),
-			TEXT(SERVICE),
+			SERVICE,
+			SERVICE,
 			SC_MANAGER_ALL_ACCESS,
 			SERVICE_KERNEL_DRIVER,
 			SERVICE_DEMAND_START,
 			SERVICE_ERROR_IGNORE,
-			TEXT(DRIVER),
+			DRIVER,
 			NULL, NULL, NULL, NULL, NULL
 
 		);
@@ -180,12 +180,16 @@ HANDLE install_driver() {
 			popup("loaded driver", "YEAH!");
 
 		}
+		else {
+			popup("Didn't load driver", "NO");
+		}
 	}
-	
-		
+
+	popup("Error Incoming!", "Scary");
+
 	device = CreateFile
 	(
-		TEXT(DEVICE),
+		L"\\\\.\\Whatahek",
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -193,13 +197,16 @@ HANDLE install_driver() {
 		FILE_ATTRIBUTE_NORMAL,
 		NULL
 	);
+	if (device == INVALID_HANDLE_VALUE) {
+		popup("ahjakdffm", "bad");
+	}
 
-	popup("Hello from", "The other side!");
+	device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
 
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);
 
-	return device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
+	return device;
 }
 
 
