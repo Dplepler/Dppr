@@ -34,10 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
-	if (!device) {
-		popup("Shit", "HHH");
-	}
-	popup("Ho", "hi");
+
 	NTSTATUS status;
 	ULONG bytesReturned;
 
@@ -132,8 +129,6 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 		}
 	}
 
-	
-
 	return TRUE;
 }
 
@@ -187,9 +182,9 @@ HANDLE install_driver() {
 
 	popup("Error Incoming!", "Scary");
 
-	device = CreateFile
+	device = CreateFileW
 	(
-		L"\\\\.\\Whatahek",
+		DEVICE,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -197,16 +192,18 @@ HANDLE install_driver() {
 		FILE_ATTRIBUTE_NORMAL,
 		NULL
 	);
+
 	if (device == INVALID_HANDLE_VALUE) {
-		popup("ahjakdffm", "bad");
+		popup("badbad", "bad");
 	}
 
 	device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
+	
 
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);
 
-	return device;
+	return hService;
 }
 
 
