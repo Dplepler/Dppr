@@ -2,9 +2,9 @@
 
 #define ARG L"monitorproc"
 
-#define SERVICE L"Whatahek"
+#define SERVICE L"AAAAAmmm"
 //#define DNAME   L"AAAtest"
-#define DEVICE L"\\\\.\\Whatahek"
+#define DEVICE L"\\\\.\\AAAAAmmm"
 #define DRIVER L"C:\\Windows\\System32\\drivers\\DPDriver.sys"
 
 HANDLE install_driver();
@@ -34,7 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
-	if (!device) {
+	if (!device || device != INVALID_HANDLE_VALUE) {
 		popup("Poop", "tiny poop");
 	}
 
@@ -56,8 +56,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 			&bytesReturned,
 			NULL
 		);
-
-	printError();
 
 	popup("I am here now", "I am there then");
 
@@ -138,6 +136,9 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 			return FALSE;
 		}
 	}
+	else {
+		popup("Service started", "I guess..");
+	}
 
 	return TRUE;
 }
@@ -148,12 +149,24 @@ HANDLE install_driver() {
 	SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	SC_HANDLE hService = OpenService(hSCManager, SERVICE, SERVICE_ALL_ACCESS);
 
+	BOOL flag = FALSE;
+
+	switch (GetLastError()) {
+
+	case ERROR_ACCESS_DENIED: popup("Access denied", "Access denied"); break;
+	case ERROR_INVALID_HANDLE: popup("Invalid handle", "Invalid handle"); break;
+	case ERROR_INVALID_NAME: popup("Invalid name", "Invalid name"); break;
+	case ERROR_SERVICE_DOES_NOT_EXIST: popup("Does not exist", "Does not exist"); flag = TRUE; break;
+
+	}
+
 	HANDLE device = NULL;
 
 	/* Installing service (if it doesn't exist yet..) */
-	if (!hService && GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
+	if (flag) {
 
-		hService = CreateService
+		hService = 
+			CreateService
 		(
 			hSCManager,
 			SERVICE,
@@ -209,6 +222,20 @@ HANDLE install_driver() {
 
 		popup("badbad", "bad");
 		printError();
+
+		if (load_driver(hService)) {
+
+			device = CreateFileW
+			(
+				DEVICE,
+				GENERIC_READ | GENERIC_WRITE,
+				0,
+				NULL,
+				OPEN_EXISTING,
+				FILE_ATTRIBUTE_NORMAL,
+				NULL
+			);
+		}
 	}
 	else {
 		popup("Gobr", "GOnbbber");
