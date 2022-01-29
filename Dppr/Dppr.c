@@ -30,7 +30,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	char pid[32] = { 0 };
 	sprintf_s(pid, 32, "%lu", GetCurrentProcessId());
-
+	
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
@@ -238,6 +238,8 @@ HANDLE install_driver() {
 				popup("I HATE POOP!", "I love creamy juice");
 			}
 		}
+		
+		popup("whaaa", "fdff");
 	}
 	else {
 		popup("Gobr", "GOnbbber");

