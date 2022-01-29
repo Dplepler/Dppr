@@ -34,7 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
-	if (!device || device != INVALID_HANDLE_VALUE) {
+	if (device == INVALID_HANDLE_VALUE) {
 		popup("Poop", "tiny poop");
 	}
 
@@ -60,7 +60,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup("I am here now", "I am there then");
 
 	if (!result) {
-		
 		
 		popup("Watahek", "oof");
 	}
@@ -181,15 +180,12 @@ HANDLE install_driver() {
 		);
 
 		if (!hService) {
-			popup("Could not create service", "Oop");
 			printError();
+			popup("Could not create service", "Oop");
 		}
 		else {
 			popup("Hi", "Else statenebt");
 		}
-
-		
-
 	}
 	else if (!hService) {
 
@@ -219,8 +215,6 @@ HANDLE install_driver() {
 
 	if (device == INVALID_HANDLE_VALUE) {
 
-
-		popup("badbad", "bad");
 		printError();
 
 		if (load_driver(hService)) {
@@ -235,13 +229,19 @@ HANDLE install_driver() {
 				FILE_ATTRIBUTE_NORMAL,
 				NULL
 			);
+
+			if (device == INVALID_HANDLE_VALUE) {
+				printError();
+				popup("still doesn't", "work");
+			}
+			else {
+				popup("I HATE POOP!", "I love creamy juice");
+			}
 		}
 	}
 	else {
 		popup("Gobr", "GOnbbber");
 	}
-
-	device == INVALID_HANDLE_VALUE && !load_driver(hService) ? NULL : device;
 	
 
 	CloseServiceHandle(hService);

@@ -26,9 +26,9 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Regi
 	UNICODE_STRING     uniName;
 	OBJECT_ATTRIBUTES  objAttr;
 	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
-	RtlInitUnicodeString(&uniName, L"\\SystemRoot\\proop.txt");  // or L"\\SystemRoot\\example.txt"
+	RtlInitUnicodeString(&uniName, L"C:\\proop.txt");  // or L"\\SystemRoot\\example.txt"
 	InitializeObjectAttributes(&objAttr, &uniName,
-		OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+		OBJ_CASE_INSENSITIVE,
 		NULL, NULL);
 	//////////////////////////////////
 
@@ -37,17 +37,14 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Regi
 	HANDLE handle;
 	IO_STATUS_BLOCK    ioStatusBlock;
 	ntstatus = ZwCreateFile(&handle,
-		GENERIC_READ,
+		FILE_WRITE_DATA,
 		&objAttr, &ioStatusBlock,
 		NULL,
 		FILE_ATTRIBUTE_NORMAL,
 		0,
-		FILE_OPEN,
-		FILE_SYNCHRONOUS_IO_NONALERT,
+		FILE_OPEN_IF,
+		FILE_NON_DIRECTORY_FILE,
 		NULL, 0);
-
-
-
 
 	status = IoCreateDevice(
 		DriverObject,
