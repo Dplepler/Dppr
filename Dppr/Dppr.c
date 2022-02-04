@@ -34,15 +34,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	popup(pid, pid);
 
 	HANDLE device = install_driver();
-	if (device == INVALID_HANDLE_VALUE) {
-		popup("Poop", "tiny poop");
-	}
 
 	ULONG bytesReturned;
 
 	char retbuf[512];
-
-	popup("MNMMM", "Vroom");
 
 	BOOLEAN result =
 		DeviceIoControl
@@ -56,18 +51,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 			&bytesReturned,
 			NULL
 		);
-
-	popup("I am here now", "I am there then");
-
-	if (!result) {
-		
-		popup("Watahek", "oof");
-	}
-	else {
-		popup("Interesting", "Hmm");
-	}
-
-
 
 	CloseHandle(device);
 	
@@ -124,19 +107,11 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 
 		// Check if error was due to the driver already running
 		if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
-
-			popup("Service running", "GRRR");
 			return TRUE;
-
 		}
 		else {
-			printError();
-			popup("I was here", "Such amazing information");
 			return FALSE;
 		}
-	}
-	else {
-		popup("Service started", "I guess..");
 	}
 
 	return TRUE;
@@ -178,28 +153,10 @@ HANDLE install_driver() {
 			NULL, NULL, NULL, NULL, NULL
 
 		);
-
-		if (!hService) {
-			printError();
-			popup("Could not create service", "Oop");
-		}
-		else {
-			popup("Hi", "Else statenebt");
-		}
 	}
 	else if (!hService) {
-
-		if (load_driver(hService)) {
-
-			popup("loaded driver", "YEAH!");
-
-		}
-		else {
-			popup("Didn't load driver", "NO");
-		}
+		load_driver(hService);
 	}
-
-	popup("Error Incoming!", "Scary");
 
 	device = CreateFileW
 	(
@@ -212,10 +169,8 @@ HANDLE install_driver() {
 		NULL
 	);
 
-
 	if (device == INVALID_HANDLE_VALUE) {
 
-		printError();
 
 		if (load_driver(hService)) {
 
@@ -229,20 +184,7 @@ HANDLE install_driver() {
 				FILE_ATTRIBUTE_NORMAL,
 				NULL
 			);
-
-			if (device == INVALID_HANDLE_VALUE) {
-				printError();
-				popup("still doesn't", "work");
-			}
-			else {
-				popup("I HATE POOP!", "I love creamy juice");
-			}
 		}
-		
-		popup("whaaa", "fdff");
-	}
-	else {
-		popup("Gobr", "GOnbbber");
 	}
 	
 
