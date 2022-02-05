@@ -17,7 +17,6 @@ DRIVER_INITIALIZE DriverEntry;
 VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject);
 
 PCHAR hidep(UINT32 pid);
-ULONG find_eproc_pid();
 
 void debugFile(WCHAR name[]);
 

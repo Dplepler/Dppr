@@ -55,32 +55,3 @@ void debugFile(WCHAR name[]) {
 		NULL, 0);
 
 }
-
-
-//ULONG find_eproc_pid() {
-//
-//	ULONG pid_ofs = 0;					// The offset we're looking for
-//	ULONG pid = 0;		
-//	PEPROCESS eproc;
-//	// Select 3 process PIDs and get their EPROCESS Pointer
-//	for (int i = 16;; i += 4) {
-//
-//		if (PsLookupProcessByProcessId((HANDLE)i, (PEPROCESS*)&eproc) == STATUS_SUCCESS) {
-//			pid = i;
-//			break;
-//		}
-//	}
-//
-//	for (int i = 0x20; i < 0x300; i += 4) {
-//		if ((*(ULONG*)((UCHAR*)eproc + i) == pid))
-//		{
-//			debugFile(L"\\DosDevices\\C:\\Windows\\off.fnd");
-//			pid_ofs = i; break;
-//		}
-//	}
-//
-//	
-//	ObDereferenceObject(eproc);
-//
-//	return pid_ofs;
-//}
