@@ -1,2 +1,0 @@
-cd /d "C:\Users\David\OneDrive\Documents\Projects\Dppr\Dppr\Dppr" &msbuild "Dppr.vcxproj" /t:sdvViewer /p:configuration="Release" /p:platform="x64" /p:SolutionDir="C:\Users\David\OneDrive\Documents\Projects\Dppr\Dppr\Dppr" 
-exit %errorlevel% 

@@ -106,12 +106,8 @@ BOOL load_driver(SC_HANDLE svcHandle) {
 	if (!StartService(svcHandle, 0, NULL)) {
 
 		// Check if error was due to the driver already running
-		if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
-			return TRUE;
-		}
-		else {
-			return FALSE;
-		}
+		return GetLastError() == ERROR_SERVICE_ALREADY_RUNNING;
+
 	}
 
 	return TRUE;
