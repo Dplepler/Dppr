@@ -3,8 +3,8 @@
 DRIVER_INITIALIZE DriverEntry;
 DRIVER_UNLOAD DriverUnload;
 
-UNICODE_STRING deviceName = RTL_CONSTANT_STRING(L"\\Device\\AAAAAmmm");
-UNICODE_STRING symbolicLink = RTL_CONSTANT_STRING(L"\\DosDevices\\AAAAAmmm");
+UNICODE_STRING deviceName = RTL_CONSTANT_STRING(L"\\Device\\Plepler");
+UNICODE_STRING symbolicLink = RTL_CONSTANT_STRING(L"\\DosDevices\\Plepler");
 
 NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath) {
 

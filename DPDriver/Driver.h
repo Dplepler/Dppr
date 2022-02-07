@@ -11,8 +11,6 @@
 
 #define IRP_ROOTKIT_CODE 0x972
 
-#define PROCAMOUNT 3
-
 DRIVER_INITIALIZE DriverEntry;
 VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject);
 
