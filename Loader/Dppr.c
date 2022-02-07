@@ -40,7 +40,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		DeviceIoControl
 		(
 			device,
-			0x815,
+			0x972,
 			pid,
 			strlen(pid) + 1,
 			retbuf,

