@@ -48,7 +48,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 			&bytesReturned,
 			NULL
 		);
-
+	
 	CloseHandle(device);
 
 	int argc;
@@ -57,7 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	if (argc == 1 || lstrcmpW(argv[1], ARG)) {
 
-		/*CreateThread(NULL, NULL, &blink, NULL, 0, NULL);*/
+		CreateThread(NULL, NULL, &blink, NULL, 0, NULL);
 
 		LPWSTR procn = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, MAX_PATH * 2);
 		GetModuleFileName(NULL, procn, MAX_PATH * 2);

