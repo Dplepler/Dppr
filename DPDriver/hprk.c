@@ -2,6 +2,43 @@
 
 PCHAR hidep(UINT32 pid) {
 
+	/*
+	
+	* EPROCESS
+
+	0x00 Pcb :							_KPROCESS
+	0x438 ProcessLock:					_EX_PUSH_LOCK
+	0x440 UniqueProcessId:				LPVOID
+	0x448 ActiveProcessLinks:			_LIST_ENTRY
+	0x458 RundownProtect:				_EX_RUNDOWN_REF
+	0x460 Flags2:						0xd000
+	0x460 JobNotReallyActive:			0y0
+	0x460 AccountingFolded:				0y0
+	0x460 NewProcessReported:			0y0
+	0x460 ExitProcessReported:			0y0
+	0x460 ReportCommitChanges:			0y0
+	0x460 LastReportMemory:				0y0
+	0x460 ForceWakeCharge:				0y0
+	0x460 CrossSessionCreate:			0y0
+	0x460 NeedsHandleRundown:			0y0
+	0x460 RefTraceEnabled:				0y0
+	0x460 PicoCreated:					0y0
+	0x460 EmptyJobEvaluated:			0y0
+	0x460 DefaultPagePriority:			0y101
+	0x460 PrimaryTokenFrozen:			0y1
+	0x460 ProcessVerifierTarget:		0y0
+	0x460 RestrictSetThreadContext:		0y0
+	0x460 AffinityPermanent:			0y0
+	0x460 AffinityUpdateEnabled:		0y0
+	0x460 PropagateNode:				0y0
+	0x460 ExplicitAffinity:				0y0
+	0x460 ProcessExecutionState:		0y00
+	
+	*/
+
+
+
+
 	PEPROCESS currentProcess = PsGetCurrentProcess();
 	ULONG CurrentPID = *((ULONG*)((ULONG_PTR)currentProcess + 0x440)); // (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
 	CurrentPID = (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
