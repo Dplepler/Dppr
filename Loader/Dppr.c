@@ -187,4 +187,3 @@ void monitor() {
 	CloseHandle(snap);		// Snapshot will change each time a process is being created, make sure it is updated
 }
 
-
